@@ -10,5 +10,17 @@ module.exports = {
     seeds: {
       directory: './db/seeds/dev'
     }
-  }
+  },
+
+  test: {
+    client: 'pg',
+    connection: 'postgres://localhost/cool_colors_test',
+    migrations: {
+      directory: './db/migrations'
+    },
+    seeds: {
+      directory: './db/seeds/test'
+    },
+    useNullAsDefault: true,
+  },
 };
