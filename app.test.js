@@ -26,8 +26,13 @@ describe('Server', () => {
 
   describe('GET /api/v1/palettes?', () => {
     it('should return a palettes that match the query param', async () => {
-      const expectedPalette = database('palettes').first();
-      
-    })
-  })
+      const expectedPalettes = await database('palettes').where('name', 'random-theme');
+      const expectedPalette = expectedPalettes[0];
+      const { color_1 } = expectedPalette;
+      const response = await request(app).get(`/api/v1/palettes?color_1=${color_1}`)
+      const results = response.body;
+      const palette = results[0];
+      expect(palette.name).toEqual(expectedPalette.name)
+    });
+  });
 });
