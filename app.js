@@ -4,7 +4,7 @@ const cors = require('cors');
 const environment = process.env.NODE_ENV || 'development';
 const configuration = require('./knexfile')[environment];
 const database = require('knex')(configuration);
-app.use(cors())
+app.use(cors());
 app.use(express.json());
 
 app.get('/api/v1/projects', (req, res) => {
