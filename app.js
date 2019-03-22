@@ -97,10 +97,51 @@ app.post('/api/v1/palettes', (req, res) => {
 
 app.put('/api/v1/projects/:id/palettes', (req, res) => {
   // modify existing palette in a project in the db
+  const palette = req.body;
+  const { name, color_1, color_2, color_3, color_4, color_5, project_id, id } = palette;
+  const paletteId = parseInt(palette.id);
+  let requiredParams = ['name', 'color_1', 'color_2', 'color_3', 'color_4', 'color_5', 'project_id', 'id'];
+  requiredParams.forEach(param => {
+    if (!palette[param]) {
+      return res.status(422).send({
+        error: `Expected format: { name: <String>, color_1: <String>, color_2: <String>, color_3: <String>, color_4: <String>, color_5: <String>, project_id: <Integer>, id: <String>}. You are missing a "${param}" property.`
+      });
+    };
+  });
+
+  let paletteFound = false;
+  database('palettes')
+    .select()
+    .then(palettes => {
+      palettes.forEach(palette => {
+        if (palette.id == paletteId) {
+          paletteFound = true
+        }
+      });
+
+      if (!paletteFound) {
+        return res.status(404).send('That palette does not exist, unable to update.')
+      } else {
+        database('palettes').where('id', paletteId).update({
+          name,
+          color_1,
+          color_2,
+          color_3,
+          color_4,
+          color_5,
+          project_id
+        })
+          .then(() => res.status(200).json(`Success! Your palette with the id ${paletteId} has been updated.`))
+          .catch(error => res.status(500).json({ error }))
+      };
+
+    });
 });
 
 app.put('/api/v1/projects/:id', (req, res) => {
   // modify a project name
+  const { id } = req.params;
+
 });
 
 app.delete('/api/v1/projects/:id/palettes', (req, res) => {

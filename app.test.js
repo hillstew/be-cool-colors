@@ -91,9 +91,5 @@ describe('Server', () => {
       const result = response.body;
       expect(result).toHaveProperty('id');
     });
-
-
   });
-
-
 });
