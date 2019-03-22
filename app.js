@@ -98,7 +98,7 @@ app.post('/api/v1/palettes', (req, res) => {
 app.put('/api/v1/projects/:id/palettes', (req, res) => {
   // modify existing palette in a project in the db
   const palette = req.body;
-  const { name, color_1, color_2, color_3, color_4, color_5, project_id, id } = palette;
+  const { name, color_1, color_2, color_3, color_4, color_5, project_id } = palette;
   const paletteId = parseInt(palette.id);
   let requiredParams = ['name', 'color_1', 'color_2', 'color_3', 'color_4', 'color_5', 'project_id', 'id'];
   requiredParams.forEach(param => {
@@ -114,7 +114,7 @@ app.put('/api/v1/projects/:id/palettes', (req, res) => {
     .select()
     .then(palettes => {
       palettes.forEach(palette => {
-        if (palette.id == paletteId) {
+        if (palette.id === paletteId) {
           paletteFound = true
         }
       });
@@ -122,15 +122,17 @@ app.put('/api/v1/projects/:id/palettes', (req, res) => {
       if (!paletteFound) {
         return res.status(404).send('That palette does not exist, unable to update.')
       } else {
-        database('palettes').where('id', paletteId).update({
-          name,
-          color_1,
-          color_2,
-          color_3,
-          color_4,
-          color_5,
-          project_id
-        })
+        database('palettes')
+          .where('id', paletteId)
+          .update({
+            name,
+            color_1,
+            color_2,
+            color_3,
+            color_4,
+            color_5,
+            project_id
+          })
           .then(() => res.status(200).json(`Success! Your palette with the id ${paletteId} has been updated.`))
           .catch(error => res.status(500).json({ error }))
       };
@@ -140,16 +142,77 @@ app.put('/api/v1/projects/:id/palettes', (req, res) => {
 
 app.put('/api/v1/projects/:id', (req, res) => {
   // modify a project name
+  const { name } = req.body;
   const { id } = req.params;
+  if (!name) {
+    return res.status(422).send({
+      error: 'You are missing a name property for this project'
+    });
+  };
 
+  let projectFound = false;
+  database('projects')
+    .select()
+    .then(projects => {
+      projects.forEach(project => {
+        if (project.id === parseInt(id)) {
+          projectFound = true
+        }
+      });
+
+      if (!projectFound) {
+        return res.status(404).send('That project does not exist, unable to update.')
+      } else {
+        database('projects')
+          .where('id', id)
+          .update({ name })
+          .then(() => res.status(200).json(`Success! Your project with the name ${name} has been updated.`))
+          .catch(error => res.status(500).json({ error }));
+      }
+    });
 });
 
-app.delete('/api/v1/projects/:id/palettes', (req, res) => {
+app.delete('/api/v1/palettes/:id', (req, res) => {
   // delete one palette in a project
+  const { id } = req.params;
+
+  database('palettes')
+    .where('id', id)
+    .del()
+    .then(palette => {
+      if (palette === 1) {
+        return res.status(200).json(`Success! Your palette with the id ${id} has been deleted.`)
+      } else {
+        return res.status(404).send('That palette does not exist, unable to delete.')
+      }
+    })
+    .catch(error => {
+      res.status(500).json({ error })
+    })
 });
 
 app.delete('/api/v1/projects/:id', (req, res) => {
   // delete entire project
+  const { id } = req.params;
+
+  database('palettes')
+    .where('project_id', id)
+    .del()
+    .then(() => {
+      database('projects')
+        .where('id', id)
+        .del()
+        .then(project => {
+          if (project === 1) {
+            return res.status(200).json(`Success! Your project with the id ${id} has been deleted.`)
+          } else {
+            return res.status(404).send('That project does not exist, unable to delete.')
+          }
+        });
+    })
+    .catch(error => {
+      res.status(500).json({ error })
+    })
 });
 
 module.exports = app;
