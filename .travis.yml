@@ -1,0 +1,9 @@
+language: node_js
+node_js: 
+  - "node"
+services: 
+  - postgresql
+before_script:
+  - psql -c 'create database cool_colors_test;' -U postgres
+  - npm run migrate 
+  - npm run seed

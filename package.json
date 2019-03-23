@@ -17,8 +17,11 @@
     "babel-jest": "^24.5.0"
   },
   "scripts": {
-    "test": "jest --watchAll",
-    "start": "node server.js"
+    "test:watch": "jest --watchAll",
+    "test": "jest --forceExit",
+    "start": "node server.js",
+    "migrate": "knex migrate:latest --env=test",
+    "seed": "knex seed:run --env=test"
   },
   "repository": {
     "type": "git",
