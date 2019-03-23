@@ -1,9 +1,17 @@
 language: node_js
-node_js: 
-  - "node"
-services: 
-  - postgresql
+node_js:
+- node
+services:
+- postgresql
 before_script:
-  - psql -c 'create database cool_colors_test;' -U postgres
-  - npm run migrate 
-  - npm run seed
+- psql -c 'create database cool_colors_test;' -U postgres
+- npm run migrate
+- npm run seed
+notifications:
+  email: false
+deploy:
+  provider: heroku
+  api_key:
+    secure: UKQTlhtDjKMPEAw3+a3BmlKFlKOCXPUw6g8ENt33uvlulGoQ1S57/oP/X9L2lWOrNw1CqcuRihzq5vghkGjWCa5Jhcix3ikDtZesnxDmBrgm4I7d1BWOIDEYkxvvkwT6l7gx9EnUd0y64VzjrIwMPl067UnJ+8pp7d3uekGJ3e3ALgUz0LXUKBquHB93D8zREXjYeLCpueuBP4W2r0ejG2XdpzO/WN27JsJNfS6xyGjuqmUiNZ9Qad8N2FKlEEcic2Rpf9d+An2pQ+9NqxnYZpcf0fs4mspUMK48jRGvzk+W9K3rtZpLx/IWv8UN+6L1yVK2dlbw5zvcw1FWPtYl9uH7YiLj8gSsfHiFs0Fm4cvgGYLBIFdRYdW7rjkfFIkq0fB+qZJV9N3b4ApXQ3YRXfXCg++KFStAzWV+8r6PluYf9dB1lk2CYm5IlXZrSIJNimTevFIj4woujfk6En0SCjN9YMhb7Vk2DShUW6p21ZwEYWQdXNyU9wYjtm5zaeFOxm51Exs7pMJ3khr6hCeOwkKo7ByDzoLmYg98fdK33L5M5Z4f64YrYlD35czdWQTvTcyw9TpR16ux0affO8vGwcu/SJQB7xpGBQfMR1q9Rfkvol5fgqF789QUWgp/hG0T/LQvgJY7GJ557oNKF8PZZ+dT/pkFq1FVFwSpUrQ5Yrk=
+  app: be-cool-colors
+  skip_cleanup: true
