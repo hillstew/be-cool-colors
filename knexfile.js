@@ -1,5 +1,4 @@
 module.exports = {
-
   development: {
     client: 'pg',
     connection: 'postgres://localhost/cool_colors',
@@ -11,7 +10,6 @@ module.exports = {
       directory: './db/seeds/dev'
     }
   },
-
   test: {
     client: 'pg',
     connection: 'postgres://localhost/cool_colors_test',
@@ -23,7 +21,6 @@ module.exports = {
     },
     useNullAsDefault: true,
   },
-
   production: {
     client: 'pg',
     connection: process.env.DATABASE_URL + `?ssl=true`,
