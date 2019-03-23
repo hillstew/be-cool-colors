@@ -57,21 +57,33 @@ app.get('/api/v1/projects/:id/palettes', (req, res) => {
 });
 
 app.post('/api/v1/projects', (req, res) => {
-  const project = req.body;
+  let project = req.body;
+
   if (!project.name) {
-    return res.status(422).send({
+    return res.status(422).json({
       error: 'You are missing a name property for this project'
     });
   }
+
   database('projects')
-    .insert(project, 'id')
-    .then(project => res.status(201).json({ id: project[0] }))
+    .where('name', project.name)
+    .then(projects => {
+      if (projects.length >= 1) {
+        return res.status(400).json({
+          error: `A project with the name ${project.name} already exists.`
+        });
+      }
+      database('projects')
+        .insert(project, 'id')
+        .then(project => res.status(201).json({ id: project[0] }))
+      })
     .catch(error => res.status(500).json({ error }));
 });
 
 app.post('/api/v1/palettes', (req, res) => {
   const palette = req.body;
   let requiredParams = ['name', 'color_1', 'color_2', 'color_3', 'color_4', 'color_5', 'project_id'];
+
   requiredParams.forEach(param => {
     if (!palette[param]) {
       return res.status(422).send({
@@ -79,11 +91,14 @@ app.post('/api/v1/palettes', (req, res) => {
       });
     }
   });
+
   database('projects')
     .where('id', palette.project_id)
     .then(projectIds => {
       if (!projectIds.length) {
-        return res.status(422).json(`${palette.project_id} does not exist, unable to add palette`);
+        return res.status(400).json({
+          error: `${palette.project_id} does not exist, unable to add palette`
+        });
       }
       database('palettes')
         .insert(palette, 'id')
@@ -155,7 +170,9 @@ app.put('/api/v1/projects/:id', (req, res) => {
       });
 
       if (!projectFound) {
-        return res.status(404).send('That project does not exist, unable to update.');
+        return res.status(404).send({
+          error: 'That project does not exist, unable to update.'
+        });
       } else {
         database('projects')
           .where('id', id)
@@ -176,7 +193,7 @@ app.delete('/api/v1/palettes/:id', (req, res) => {
       if (palette === 1) {
         return res.status(200).json(`Success! Your palette with the id ${id} has been deleted.`);
       } else {
-        return res.status(404).send('That palette does not exist, unable to delete.');
+        return res.status(404).send({ error: 'That palette does not exist, unable to delete.'});
       }
     })
     .catch(error => {
@@ -198,7 +215,7 @@ app.delete('/api/v1/projects/:id', (req, res) => {
           if (project === 1) {
             return res.status(200).json(`Success! Your project with the id ${id} has been deleted.`);
           } else {
-            return res.status(404).send('That project does not exist, unable to delete.');
+            return res.status(404).send({ error: 'That project does not exist, unable to delete.'});
           }
         });
     })
